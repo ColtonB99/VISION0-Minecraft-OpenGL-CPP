@@ -1,0 +1,13 @@
+// State we are using OpenGL 4.5 in Core mode (Which we are)
+#version 450 core
+
+in vec2 fragmentTexCoords; // Recieve Texture Coordinates from the Vertex Shader
+
+uniform sampler2D basicTexture;
+
+out vec4 finalColor;
+
+void main()
+{
+    finalColor = texture(basicTexture, fragmentTexCoords);
+}
