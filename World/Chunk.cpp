@@ -6,7 +6,8 @@
 
 Chunk::Chunk(ChunkCreateInfo* chunkInfo) {
 	this->position = { chunkInfo->position[0], chunkInfo->position[1] };
-	this->grassMaterial = chunkInfo->grassMaterial;
+	this->grassMaterial = chunkInfo->Materials[0];
+	this->woodMaterial = chunkInfo->Materials[1];
 	this->shader = chunkInfo->shader;
 
 	/*MaterialCreateInfo grassMaterialInfo;
@@ -105,32 +106,141 @@ bool Chunk::CheckCorners(const siv::PerlinNoise perlin, int ChunkPositionX, int 
 	//float PerlinCoordY = NoiseOffset[1] + z / (float)ChunkSize[2] * NoiseScale[1];
 	return true;
 
-}
+}int Chunk::getBlock(glm::vec3 playerPosition) {
+	float cubeSize = .5f;
+
+	int playerPositionX = playerPosition.x;
+	int playerPositionY = playerPosition.y;
+	int playerPositionZ = playerPosition.z;
+
+	int playerPosX = (playerPositionX % 16);
+	int playerPosY = (playerPositionY % 16);
+
+	std::cout << playerPosX << ", " << playerPosY << ", " << (int)playerPosition.z << std::endl;
+
+	for (int i = 0; i < cubesy.size(); i++) {
+
+		int CollisionState = 0;
 
 
-void Chunk::RemoveChunk() {
-	for (Cube* obj : this->cubesy) { delete obj; }
-	//for (RectangleModel* obj : this->rectanglesy) { delete obj; }
-	//delete this;
-}
+		int cubePositionX = cubesy[i]->position[0];
+		int cubePositionY = cubesy[i]->position[1];
+		int cubePositionZ = cubesy[i]->position[2];
+
+		
+		glm::vec3 cube000 = { abs(cubePositionX) - (cubeSize + 1), abs(cubePositionY) - (cubeSize + 1), abs(cubePositionZ) - (cubeSize + 1) };
+		glm::vec3 cube111 = { abs(cubePositionX) + cubeSize, abs(cubePositionY) + cubeSize, abs(cubePositionZ) + cubeSize };
+
+		if (playerPositionX < 0 && cubePositionX == 0) {
+			cube000[0] = (abs(cubePositionX) + 1) - (cubeSize + 1);
+		}
+
+		if (playerPositionY < 0 && cubePositionY == 0) {
+			cube000[1] = abs(cubePositionY) - (cubeSize + 2);
+		}
 
 
-int Chunk::getBlock(glm::vec3 playerPosition) {
 
-	
-	float cubeSize = 1.0f;
-	int cubeIndex = 0;
-	//std::array<int, 2> playerChunkPosition{ (int)playerPosition.x / 16, (int)playerPosition.y / 16 };
-
-	float playerPosX = playerPosition.x;
-	float playerPosY = playerPosition.y;
-	float playerPosZ = playerPosition.z;
-
-
-	auto it = find_if(cubesy.begin(), cubesy.end(), [playerPosX, playerPosY, playerPosZ, cubeSize](Cube* cube) { return sqrt(pow((cube->position.x) - (playerPosX), 2) + pow((cube->position.y) - (playerPosY), 2) + pow((cube->position.z) - (playerPosZ), 2)) <= cubeSize; });
-	if (it != cubesy.end()) {
-		return 3105;
+		if (abs(playerPositionX) > cube000.x && abs(playerPositionX) < cube111.x)
+			if (abs(playerPositionY) > cube000.y && abs(playerPositionY) < cube111.y)
+				if (playerPositionZ > cube000.z && playerPositionZ < cube111.z) {
+					return 3105;
+				}
 	}
+
+
+	//	if (playerPositionX > -1) {
+	//		if (playerPositionX > cube000.x && playerPositionX < cube111.x) {
+	//			CollisionState++;
+	//			//std::cout << "X, ";
+
+	//		}
+	//	}
+	//	else {
+	//		cube000.x = { cubeSize - cubePositionX };
+	//		cube111.x = { cubeSize + cubePositionX };
+
+	//		if (playerPositionX > cube000.x && playerPositionX < cube111.x) {
+	//			CollisionState++;
+	//			//std::cout << "X, ";
+	//		}
+	//	}
+
+	//	if (playerPositionY > -1) {
+	//		if (playerPositionY > cube000.y && playerPositionY < cube111.y) {
+	//			CollisionState++;
+	//			//std::cout << "Y, ";
+
+	//		}
+	//	}
+	//	else {
+	//		cube000.y = { cubeSize - cubePositionY };
+	//		cube111.y = { cubeSize + cubePositionY };
+
+	//		if (playerPositionY < cube000.y && playerPositionY > cube111.y) {
+	//			CollisionState++;
+	//			//std::cout << "Y, ";
+
+	//		}
+	//	}
+
+	//	if (playerPositionZ > -1) {
+	//		if (playerPositionZ > cube000.z && playerPositionZ < cube111.z) {
+	//			CollisionState++;
+	//			//std::cout << "Z.";
+	//		}
+	//	}
+	//	else {
+
+	//		//cube000.z = { cubeSize - cubePositionZ };
+	//		//cube111.z = { cubeSize + cubePositionZ };
+
+	//		if (playerPositionZ < cube000.z && playerPositionZ > cube111.z) {
+	//			CollisionState++;
+	//			//std::cout << "Z.";
+	//		}
+	//	}
+	//	
+	//	
+	//	
+	//	//std::cout << std::endl;
+	//	//system("CLS");
+	//		
+	//	
+	//	
+
+	//	if (CollisionState >= 3) {
+	//		return 3105;
+	//	}
+
+	//}
+
+
+	//for (Cube* cube : cubesy) {
+
+	//	// Define cube bounds
+	//	glm::vec3 cube000 = { cube->position.x - cubeSize, cube->position.y - cubeSize, cube->position.z - cubeSize};
+	//	glm::vec3 cube111 = { cube->position.x + cubeSize, cube->position.y + cubeSize, cube->position.z + cubeSize };
+
+	//	if (playerPosition.x > cube000.x && playerPosition.x < cube111.x) {
+	//		if (playerPosition.y > cube000.y && playerPosition.y < cube111.y) {
+	//			if (playerPosition.z > cube000.z && playerPosition.z < cube111.z) {
+	//				
+	//				// 3105 means: "True" on collision detection, don't ask lmao
+	//				return 3105;
+
+	//				
+	//			}
+	//		}
+	//	}
+	//}
+
+	// This is all it is:: ^^^^^^
+
+	//auto it = find_if(cubesy.begin(), cubesy.end(), [playerPosX, playerPosY, playerPosZ, cubeSize](Cube* cube) { return sqrt(pow((cube->position.x) - (playerPosX), 2) + pow((cube->position.y) - (playerPosY), 2) + pow((cube->position.z) - (playerPosZ), 2)) <= cubeSize; });
+	//if (it != cubesy.end()) {
+	//	return 3105;
+	//}
 
 
 		

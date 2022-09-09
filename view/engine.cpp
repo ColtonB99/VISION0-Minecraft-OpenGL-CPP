@@ -160,11 +160,42 @@ void Engine::ChunkManager(Player* player, int RenderDistance) {
 
 Chunk* Engine::getChunk(glm::vec3 playerPosition) {
 
+	
+
 	std::array<int, 2> currentPosition{ (int)playerPosition.x / 16, (int)playerPosition.y / 16 };
 
 	for (Chunk* chunk : chunks) {
-		if (currentPosition == chunk->position) {
-			return chunk;
+
+		if ((int)playerPosition.x < 0 && (int)playerPosition.y < 0)
+		{
+			currentPosition = { ((int)playerPosition.x / 16) - 1, ((int)playerPosition.y / 16) - 1 };
+			if (currentPosition == chunk->position)
+			{
+				return chunk;
+			}
+		}
+		else if ((int)playerPosition.x < 0 && (int)playerPosition.y > -1)
+		{
+			currentPosition[0] = { ((int)playerPosition.x / 16) - 1 };
+			if (currentPosition == chunk->position)
+			{
+				return chunk;
+			}
+		
+		}
+		else if ((int)playerPosition.x > -1 && (int)playerPosition.y < 0) {
+			currentPosition[1] = { ((int)playerPosition.y / 16) - 1 };
+			//currentPosition[1] = currentPosition[1] - 1;
+			if (currentPosition == chunk->position)
+			{
+				return chunk;
+			}
+		}
+		else 
+		{
+			if (currentPosition == chunk->position) {
+				return chunk;
+			}
 		}
 
 	}
@@ -196,7 +227,7 @@ void Engine::FreeChunk(std::array<int, 2> curLocation) {
 		
 		ChunkCreateInfo m_chunkInfo;
 		m_chunkInfo.position = curLocation;
-		m_chunkInfo.grassMaterial = grassMaterial;
+		m_chunkInfo.Materials = {grassMaterial, woodMaterial};
 		m_chunkInfo.shader = shader;
 		chunks.push_back(new Chunk(&m_chunkInfo));
 	}

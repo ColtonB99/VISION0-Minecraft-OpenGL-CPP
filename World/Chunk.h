@@ -10,7 +10,9 @@
 
 struct ChunkCreateInfo {
 	std::array<int, 2> position;
-	Material* grassMaterial;
+	std::array<Material*, 2> Materials;
+	
+	//Material* grassMaterial;
 	unsigned int shader;
 
 
@@ -26,6 +28,7 @@ public:
 	std::vector<Cube*> cubesy;
 	
 	Material* grassMaterial;
+	Material* woodMaterial;
 	unsigned int shader;
 	
 

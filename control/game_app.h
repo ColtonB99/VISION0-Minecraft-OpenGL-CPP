@@ -22,10 +22,10 @@ public:
 	~GameApp();
 	ChunkCreateInfo* chunkInfo;
 	
-	
+	Material* woodMaterial;
 
 private:
-
+	bool finishedLoading = false;
 	bool isGrounded;
 
 	GLFWwindow* makeWindow();

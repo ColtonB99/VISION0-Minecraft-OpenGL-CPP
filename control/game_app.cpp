@@ -19,6 +19,14 @@ GameApp::GameApp(GameAppCreateInfo* createInfo) {
 	renderer = new Engine(width, height);
 	scene = new Scene();
 
+
+
+	//MaterialCreateInfo woodMaterialInfo;
+	//woodMaterialInfo.filename = "textures/wood-low.jpg";
+	//woodMaterial = new Material(&woodMaterialInfo);
+
+
+	////Material* woodMaterial = renderer->woodMaterial;
 	scene->player->position.x = 0;
 	scene->player->position.y = 0;
 	scene->player->position.z = 15;
@@ -172,45 +180,62 @@ returnCode GameApp::processInput() {
 	
 	glm::vec3 dPos = scene->player->position + movingSpeed * frameTime / 16.0f * glm::vec3{ glm::cos(glm::radians(walk_direction)),	glm::sin(glm::radians(walk_direction)),	0.0f };
 
+	
 
-	if (walking && Colliding(dPos) != 3105) {
-		scene->movePlayer(
-			movingSpeed * frameTime / 16.0f * glm::vec3{
-				glm::cos(glm::radians(walk_direction)),
-				glm::sin(glm::radians(walk_direction)),
-				0.0f
-			}
-		);
+
+	if (walking) {
+		glm::vec3 walkToX = movingSpeed * frameTime / 16.0f * glm::vec3{ glm::cos(glm::radians(walk_direction)), 0.0f, 0.0f };
+		glm::vec3 PlayerPos = scene->player->position;
+		PlayerPos.z -= .5f;
+		if (Colliding(PlayerPos += walkToX) != 3105) {
+			scene->movePlayer(
+				movingSpeed * frameTime / 16.0f * glm::vec3{
+					glm::cos(glm::radians(walk_direction)),
+					0.0f,
+					0.0f
+				}
+			);
+		}
+		glm::vec3 walkToY = movingSpeed * frameTime / 16.0f * glm::vec3{ 0.0f, glm::sin(glm::radians(walk_direction)), 0.0f };
+
+		if (Colliding(PlayerPos += walkToY) != 3105) {
+			scene->movePlayer(walkToY);
+		}
+
+
+
+
+		
 	} 
 
 	glm::vec3 jPos = scene->player->position + 0.1f * frameTime / 16.0f * glm::vec3{ 0.0f, 0.0f, jump_direction * 0.007f };
 
 	if (jumping) {
-		if (isGrounded) {
-			isGrounded = false;
-			for (int i = 0; i < 20; i++) {
-				scene->movePlayer(
-					0.1f * frameTime / 16.0f * glm::vec3{
-							0.0f, 0.0f, +180 * 0.005f
-					}
-				);
-			}
-		}
-	}
-	
-	if (Colliding(jPos) != 3105) {
-		//isGrounded = true;
 		scene->movePlayer(
 			0.1f * frameTime / 16.0f * glm::vec3{
-					0.0f, 0.0f, -180 * 0.001f
+					0.0f, 0.0f, jump_direction * 0.005f
 			}
 		);
 	}
 	else {
-		isGrounded = true;
+		glm::vec3 PlayerPos = scene->player->position;
+		PlayerPos.z -= 1.0f;
+
+		glm::vec3 MoveTo = 0.1f * frameTime / 16.0f * glm::vec3{ 0.0f, 0.0f, -0.20f };
+
+		if (Colliding(PlayerPos += MoveTo) != 3105) {
+			scene->movePlayer(
+				0.1f * frameTime / 16.0f * glm::vec3{
+						0.0f, 0.0f, -0.80f
+				}
+			);
+		}
 	}
 
+	
+	
 
+	
 
 	float mouseSensitivity = 0.3f;
 	double mouse_x, mouse_y;
@@ -259,7 +284,7 @@ returnCode GameApp::processInput() {
 	return returnCode::CONTINUE;
 }
 
-static std::thread* RenderThread = nullptr;
+std::array<int, 2> LocationThen;
 returnCode GameApp::mainLoop() {
 
 	
@@ -275,21 +300,25 @@ returnCode GameApp::mainLoop() {
 
 	renderer->render(scene);
 
+	std::array<int, 2> LocationNow = { (int)(scene->player->position.x / 16) , (int)(scene->player->position.y / 16) };
+	/*
+	if (LocationNow != LocationThen) {
+		LocationThen = LocationNow;
+		std::cout << LocationNow[0] << ", " << LocationNow[1] << std::endl;
+	}*/
 	
-	
-	//std::cout << scene->player->position.x << ", " << scene->player->position.y << ", " << scene->player->position.z << std::endl;
 
 	
 
 
 	// Manage Chunks
-	renderer->ChunkManager(scene->player, 7);
+	renderer->ChunkManager(scene->player, 6);
 	returnCode nextAction{ processInput() };
-	//Colliding(scene->player->position);
+	
 
 	//CollidingNow = renderer->getChunk(scene->player->position)->getBlock(scene->player->position);
 
-
+	
 	//glfwSwapBuffers(window);
 
 	glFlush();
@@ -306,18 +335,10 @@ GameApp::~GameApp() {
 	glfwTerminate();
 }
 
-//std::vector<Cube*> CollidedWithBefore;
+
 int GameApp::Colliding(glm::vec3 playerPosition) {
 
 	return renderer->getChunk(playerPosition)->getBlock(playerPosition);
-
-
-	//Cube* CollidingCube = renderer->getChunk(playerPosition)->getBlock(playerPosition);
-
-	/*if (std::find(CollidedWithBefore.begin(), CollidedWithBefore.end(), CollidingCube) == CollidedWithBefore.end()) {
-		CollidedWithBefore.push_back(CollidingCube);
-		std::cout << "Colliding with: " << CollidingCube << std::endl;
-	}*/
 
 }
 
